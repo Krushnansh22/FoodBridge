@@ -52,10 +52,10 @@ exports.getMe = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
   try {
-    const { name, phone, address, organizationName, vehicleType, vehicleNumber, isAvailable } = req.body;
+    const { name, phone, address, organizationName, vehicleType, vehicleNumber, isAvailable, currentLocation } = req.body;
     const user = await User.findByIdAndUpdate(
       req.user._id,
-      { name, phone, address, organizationName, vehicleType, vehicleNumber, isAvailable },
+      { name, phone, address, organizationName, vehicleType, vehicleNumber, isAvailable, currentLocation },
       { new: true, runValidators: true }
     );
     res.json({ success: true, user });
