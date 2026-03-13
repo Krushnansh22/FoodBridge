@@ -149,20 +149,6 @@ pickupTime, ngoLocation, driverAcceptedAt, pickedUpAt, deliveredAt
 - My Deliveries — track status: accepted → heading → picked up → delivered
 - Map buttons to open pickup and drop locations
 
-### Admin
-- Dashboard — platform stats
-- Users — manage all accounts
-
----
-
-## 🏆 Hackathon Demo Flow
-
-1. Register as Donor → post food listing with map location
-2. Register as NGO → browse, pick location on map, request pickup
-3. Login as Donor → approve the request
-4. Register as Driver → see the delivery → accept it
-5. Driver → update status: heading → picked up → delivered
-6. Login as Admin → view all stats
 
 ---
 
