@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, ActivityIndicator, StyleSheet, Image } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -21,6 +21,7 @@ import AdminScreen from '../screens/AdminScreen';
 import LocationPickerScreen from '../screens/LocationPickerScreen';
 import DriverHomeScreen from '../screens/DriverHomeScreen';
 import DriverDeliveriesScreen from '../screens/DriverDeliveriesScreen';
+import AdminExpiredFoodScreen from '../screens/AdminExpiredFoodScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -117,6 +118,8 @@ function AdminTabs() {
     <Tab.Navigator screenOptions={tabOptions}>
       <Tab.Screen name="Admin" component={AdminScreen}
         options={{ title: 'Admin', tabBarIcon: ({ focused }) => <TabIcon emoji="⚙️" focused={focused} /> }} />
+      <Tab.Screen name="Expired" component={AdminExpiredFoodScreen}
+        options={{ title: 'Expired', tabBarIcon: ({ focused }) => <TabIcon emoji="⚠️" focused={focused} /> }} />
       <Tab.Screen name="Profile" component={ProfileScreen}
         options={{ title: 'Profile', tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} /> }} />
     </Tab.Navigator>
@@ -129,7 +132,11 @@ export default function AppNavigator() {
   if (loading) {
     return (
       <View style={styles.splash}>
-        <Text style={styles.splashEmoji}>🌉</Text>
+        <Image 
+          source={require('../../public/logo.png')} 
+          style={{ width: 120, height: 120 }} 
+          resizeMode="contain" 
+        />
         <Text style={styles.splashTitle}>FoodBridge</Text>
         <ActivityIndicator color={colors.primary} style={{ marginTop: 20 }} />
       </View>

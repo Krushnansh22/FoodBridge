@@ -24,6 +24,23 @@ exports.getAvailableListings = async (req, res) => {
   }
 };
 
+// Get expired listings (for Admin)
+exports.getExpiredListings = async (req, res) => {
+  try {
+    const listings = await Listing.find({
+      $or: [
+        { expiresAt: { $lte: new Date() } },
+        { status: 'expired' }
+      ]
+    })
+      .populate('donor', 'name organizationName phone address')
+      .sort('-createdAt');
+    res.json({ success: true, count: listings.length, listings });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 // Get donor's own listings
 exports.getMyListings = async (req, res) => {
   try {

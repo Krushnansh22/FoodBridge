@@ -2,10 +2,11 @@ const express = require('express');
 const router = express.Router();
 const {
   createListing, getAvailableListings, getMyListings,
-  getListing, updateListing, deleteListing
+  getListing, updateListing, deleteListing, getExpiredListings
 } = require('../controllers/listingController');
 const { protect, authorize } = require('../middleware/auth');
 
+router.get('/expired', protect, authorize('admin', 'donor'), getExpiredListings);
 router.get('/', protect, getAvailableListings);
 router.get('/mine', protect, authorize('donor'), getMyListings);
 router.get('/:id', protect, getListing);

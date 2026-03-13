@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
-  Alert, TouchableOpacity,
+  Alert, TouchableOpacity, Image
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { authAPI } from '../api';
@@ -105,7 +105,11 @@ export default function ProfileScreen() {
       {/* App info */}
       <View style={styles.section}>
         <Card style={{ alignItems: 'center', paddingVertical: 20 }}>
-          <Text style={styles.appIcon}>🌉</Text>
+          <Image 
+            source={require('../../public/logo.png')} 
+            style={{ width: 80, height: 80, marginBottom: 8 }} 
+            resizeMode="contain" 
+          />
           <Text style={styles.appName}>FoodBridge</Text>
           <Text style={styles.appTagline}>Connecting surplus food with communities in need</Text>
           <Text style={styles.version}>Version 1.0.0</Text>
