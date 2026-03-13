@@ -9,7 +9,7 @@ import { colors, radius, spacing, shadow } from '../utils/theme';
 export const Button = ({ title, onPress, loading, variant = 'primary', disabled, style, textStyle, size = 'md' }) => {
   const bgColor = {
     primary: colors.primary,
-    secondary: colors.secondary,
+    secondary: colors.textSecondary,
     outline: 'transparent',
     danger: colors.danger,
     ghost: 'transparent',
@@ -28,37 +28,41 @@ export const Button = ({ title, onPress, loading, variant = 'primary', disabled,
     ghost: 'transparent',
   }[variant] || 'transparent';
 
-  const padV = size === 'sm' ? 8 : size === 'lg' ? 16 : 13;
+  const padV = size === 'sm' ? 10 : size === 'lg' ? 18 : 14;
 
   return (
     <TouchableOpacity
       onPress={onPress}
       disabled={disabled || loading}
-      activeOpacity={0.82}
+      activeOpacity={0.8}
       style={[
         styles.btn,
         { backgroundColor: bgColor, borderColor, borderWidth: variant === 'outline' ? 1.5 : 0, paddingVertical: padV, opacity: (disabled || loading) ? 0.6 : 1 },
+        variant === 'primary' && styles.btnShadow,
         style,
       ]}
     >
       {loading ? (
         <ActivityIndicator color={txtColor} size="small" />
       ) : (
-        <Text style={[styles.btnText, { color: txtColor, fontSize: size === 'sm' ? 13 : 15 }, textStyle]}>{title}</Text>
+        <Text style={[styles.btnText, { color: txtColor, fontSize: size === 'sm' ? 14 : size === 'lg' ? 17 : 16 }, textStyle]}>{title}</Text>
       )}
     </TouchableOpacity>
   );
 };
 
 // ─── Input ───────────────────────────────────────────────────────────────────
-export const Input = ({ label, error, containerStyle, ...props }) => (
-  <View style={[{ marginBottom: spacing.lg }, containerStyle]}>
+export const Input = ({ label, error, containerStyle, icon, ...props }) => (
+  <View style={[{ marginBottom: 18 }, containerStyle]}>
     {label && <Text style={styles.label}>{label}</Text>}
-    <TextInput
-      placeholderTextColor={colors.textMuted}
-      style={[styles.input, error && styles.inputError, props.multiline && { height: 90, textAlignVertical: 'top' }]}
-      {...props}
-    />
+    <View style={styles.inputWrapper}>
+      {icon && <View style={styles.inputIcon}>{icon}</View>}
+      <TextInput
+        placeholderTextColor={colors.textMuted}
+        style={[styles.input, error && styles.inputError, props.multiline && { height: 90, textAlignVertical: 'top' }, icon && { paddingLeft: 44 }]}
+        {...props}
+      />
+    </View>
     {error && <Text style={styles.errorText}>{error}</Text>}
   </View>
 );
@@ -122,20 +126,29 @@ export const InfoRow = ({ icon, label, value }) => (
 
 const styles = StyleSheet.create({
   btn: {
-    borderRadius: radius.md,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.xl,
   },
-  btnText: { fontWeight: '700', letterSpacing: 0.3 },
-  label: { fontSize: 13, fontWeight: '600', color: colors.text, marginBottom: 6 },
+  btnShadow: {
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  btnText: { fontWeight: '700' },
+  label: { fontSize: 13, fontWeight: '600', color: colors.textSecondary, marginBottom: 8 },
+  inputWrapper: { position: 'relative' },
+  inputIcon: { position: 'absolute', left: 14, top: 16, zIndex: 1 },
   input: {
-    borderWidth: 1.5, borderColor: colors.border, borderRadius: radius.md,
-    paddingHorizontal: spacing.lg, paddingVertical: 12, fontSize: 15,
-    backgroundColor: colors.white, color: colors.text,
+    borderWidth: 1.5, borderColor: colors.border, borderRadius: 12,
+    paddingHorizontal: 14, paddingVertical: 16, fontSize: 15,
+    backgroundColor: colors.inputBg, color: colors.text,
   },
   inputError: { borderColor: colors.danger },
-  errorText: { color: colors.danger, fontSize: 12, marginTop: 4 },
+  errorText: { color: colors.danger, fontSize: 12, marginTop: 6 },
   card: {
     backgroundColor: colors.card, borderRadius: radius.lg,
     padding: spacing.lg, marginBottom: spacing.md, ...shadow.sm,

@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Change this to your machine's local IP when testing on a physical device
-export const BASE_URL = 'http://10.98.151.16:5000/api';
+export const BASE_URL = 'http://10.98.151.196:5000/api';
 // For Android emulator use: http://10.0.2.2:5000/api
 // For iOS simulator use: http://localhost:5000/api
 

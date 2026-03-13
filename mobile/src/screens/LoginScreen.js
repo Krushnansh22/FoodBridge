@@ -1,11 +1,27 @@
 import React, { useState } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView,
+  View, Text, StyleSheet, ScrollView, SafeAreaView, StatusBar,
   KeyboardAvoidingView, Platform, TouchableOpacity, Alert, Image,
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { Button, Input } from '../components';
-import { colors, spacing, radius } from '../utils/theme';
+import { colors, spacing } from '../utils/theme';
+
+const MailIcon = () => (
+  <View style={{ width: 20, height: 20 }}>
+    <View style={{ width: 20, height: 14, borderWidth: 2, borderColor: colors.textLight, borderRadius: 4, marginTop: 3 }} />
+    <View style={{ position: 'absolute', top: 3, left: 0, width: 20, height: 14 }}>
+      <View style={{ position: 'absolute', top: 0, left: 0, width: 10, height: 8, borderRightWidth: 2, borderBottomWidth: 2, borderColor: colors.textLight, transform: [{ rotate: '45deg' }] }} />
+    </View>
+  </View>
+);
+
+const LockIcon = () => (
+  <View style={{ width: 20, height: 20 }}>
+    <View style={{ width: 14, height: 10, borderWidth: 2, borderColor: colors.textLight, borderRadius: 3, marginTop: 8, marginLeft: 3 }} />
+    <View style={{ width: 8, height: 8, borderWidth: 2, borderColor: colors.textLight, borderRadius: 4, marginTop: -18, marginLeft: 6, borderBottomWidth: 0 }} />
+  </View>
+);
 
 export default function LoginScreen({ navigation }) {
   const { login } = useAuth();
@@ -35,91 +51,82 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-        {/* Logo */}
-        <View style={styles.logoArea}>
-          <View style={styles.logoCircle}>
-            <Image 
-              source={require('../../logo/image.png')} 
-              style={{ width: 80, height: 80, borderRadius: 40 }} 
-              resizeMode="cover" 
+    <SafeAreaView style={styles.safe}>
+      <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+          <View style={styles.logoArea}>
+            <Image
+              source={require('../../public/logo.png')}
+              style={styles.logo}
+              resizeMode="contain"
             />
+            <Text style={styles.title}>Welcome back</Text>
+            <Text style={styles.subtitle}>Sign in to your account</Text>
           </View>
-          <Text style={styles.appName}>FoodBridge</Text>
-          <Text style={styles.tagline}>Connecting surplus food with those who need it</Text>
-        </View>
 
-        {/* Form */}
-        <View style={styles.formCard}>
-          <Text style={styles.heading}>Welcome back</Text>
-          <Text style={styles.sub}>Sign in to continue</Text>
+          <View style={styles.form}>
+            <Input
+              label="Email Address"
+              value={form.email}
+              onChangeText={(v) => setForm({ ...form, email: v })}
+              placeholder="Enter your email"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              error={errors.email}
+              icon={<MailIcon />}
+            />
+            <Input
+              label="Password"
+              value={form.password}
+              onChangeText={(v) => setForm({ ...form, password: v })}
+              placeholder="Enter your password"
+              secureTextEntry
+              error={errors.password}
+              icon={<LockIcon />}
+            />
 
-          <Input
-            label="Email"
-            value={form.email}
-            onChangeText={(v) => setForm({ ...form, email: v })}
-            placeholder="you@example.com"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            error={errors.email}
-          />
-          <Input
-            label="Password"
-            value={form.password}
-            onChangeText={(v) => setForm({ ...form, password: v })}
-            placeholder="Enter your password"
-            secureTextEntry
-            error={errors.password}
-          />
+            <TouchableOpacity
+              onPress={() => navigation.navigate('ForgotPassword')}
+              style={styles.forgotBtn}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.forgotText}>Forgot Password?</Text>
+            </TouchableOpacity>
 
-          <Button title="Sign In" onPress={handleLogin} loading={loading} size="lg" style={{ marginTop: 4 }} />
-        </View>
+            <Button title="Sign In" onPress={handleLogin} loading={loading} size="lg" style={{ marginTop: 8 }} />
+          </View>
 
-        <TouchableOpacity
-          onPress={() => navigation.navigate('ForgotPassword')}
-          style={{ alignSelf: 'flex-end', marginTop: -8, marginBottom: 16 }}
-        >
-          <Text style={{ color: colors.primary, fontWeight: '600', fontSize: 13 }}>
-            Forgot Password?
-          </Text>
-        </TouchableOpacity>
-
-        {/* Footer */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Don't have an account? </Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-            <Text style={styles.footerLink}>Register</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>Don't have an account? </Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Register')} activeOpacity={0.7}>
+              <Text style={styles.footerLink}>Create Account</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: colors.white },
   container: {
-    flexGrow: 1, backgroundColor: colors.background,
-    paddingHorizontal: spacing.xl, paddingBottom: 40,
+    flexGrow: 1, backgroundColor: colors.white,
+    paddingHorizontal: 24, paddingBottom: 40,
   },
-  logoArea: { alignItems: 'center', paddingTop: 60, paddingBottom: 32 },
-  logoCircle: {
-    width: 80, height: 80, borderRadius: 40,
-    backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center',
-    marginBottom: 14, shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.35, shadowRadius: 12, elevation: 8,
+  logoArea: { alignItems: 'center', paddingTop: 60, paddingBottom: 40 },
+  logo: {
+    width: 180,
+    height: 180,
+    marginBottom: 24,
   },
-  logoEmoji: { fontSize: 38 },
-  appName: { fontSize: 32, fontWeight: '900', color: colors.primary, letterSpacing: -1 },
-  tagline: { fontSize: 13, color: colors.textSecondary, marginTop: 6, textAlign: 'center', lineHeight: 18 },
-  formCard: {
-    backgroundColor: colors.white, borderRadius: 20, padding: spacing.xxl,
-    borderWidth: 1, borderColor: colors.border,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 16, elevation: 4,
-  },
-  heading: { fontSize: 22, fontWeight: '800', color: colors.text, marginBottom: 4 },
-  sub: { fontSize: 14, color: colors.textSecondary, marginBottom: spacing.xl },
-  footer: { flexDirection: 'row', justifyContent: 'center', marginTop: spacing.xxl },
+  title: { fontSize: 26, fontWeight: '700', color: colors.text, letterSpacing: -0.5 },
+  subtitle: { fontSize: 15, color: '#8a9299', marginTop: 8 },
+  form: { marginTop: 8 },
+  forgotBtn: { alignSelf: 'flex-end', marginTop: -8, marginBottom: 8 },
+  forgotText: { color: colors.primary, fontWeight: '600', fontSize: 13 },
+  footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 32 },
   footerText: { color: colors.textSecondary, fontSize: 14 },
   footerLink: { color: colors.primary, fontWeight: '700', fontSize: 14 },
 });
