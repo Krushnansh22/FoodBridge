@@ -4,20 +4,23 @@ import {
   RefreshControl, TouchableOpacity,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { listingsAPI } from '../api';
-import { Card, Badge, EmptyState, Loader } from '../components';
-import { colors, spacing, foodTypeColors, statusColors } from '../utils/theme';
-import { formatDate, timeAgo, isExpired } from '../utils/helpers';
+import { authAPI, listingsAPI } from '../api';
+import { Card, Badge, EmptyState, Loader, Button } from '../components';
+import { colors, spacing, foodTypeColors, statusColors, radius } from '../utils/theme';
+import { formatDate, timeAgo, isExpired, calculateDistance } from '../utils/helpers';
+import { useAuth } from '../context/AuthContext';
 
 const FOOD_TYPE_ICONS = {
   cooked: '🍲', raw: '🥦', packaged: '📦', beverages: '🥤', bakery: '🥖', other: '🍽️',
 };
 
 export default function NGOBrowseScreen({ navigation }) {
+  const { user } = useAuth();
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState('all');
+  const [maxDistance, setMaxDistance] = useState(null); // in km, null = ANY
 
   const load = async () => {
     try {
@@ -34,7 +37,72 @@ export default function NGOBrowseScreen({ navigation }) {
   useFocusEffect(useCallback(() => { load(); }, []));
 
   const FILTERS = ['all', 'cooked', 'raw', 'packaged', 'beverages', 'bakery', 'other'];
-  const filtered = filter === 'all' ? listings : listings.filter(l => l.foodType === filter);
+  const DISTANCES = [
+    { label: 'Any Dist', value: null },
+    { label: '5 km', value: 5 },
+    { label: '10 km', value: 10 },
+    { label: '20 km', value: 20 },
+  ];
+
+  const filtered = listings.filter(l => {
+    // 1. Type Filter
+    const typeMatch = filter === 'all' || l.foodType === filter;
+    
+    // 2. Distance Filter
+    let distMatch = true;
+    if (maxDistance !== null && user?.currentLocation?.latitude && l.pickupLocation?.latitude) {
+      const dist = calculateDistance(
+        user.currentLocation.latitude, user.currentLocation.longitude,
+        l.pickupLocation.latitude, l.pickupLocation.longitude
+      );
+      distMatch = dist !== null && dist <= maxDistance;
+    }
+
+    return typeMatch && distMatch;
+  });
+
+  const handleLocationSelected = async (loc) => {
+    try {
+      setLoading(true);
+      const newLoc = { latitude: loc.latitude, longitude: loc.longitude };
+      const res = await authAPI.updateProfile({ currentLocation: newLoc, address: loc.address });
+      if (res.success) {
+        user.currentLocation = newLoc;
+        user.address = loc.address; // update local context immediately
+        setMaxDistance(10); // set sensible default after picking
+        await load(); // explicitly reload
+      }
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+    }
+  };
+
+  const LocationPrompt = () => (
+    <View style={styles.locationPromptContainer}>
+      <Text style={styles.locationPromptEmoji}>📍</Text>
+      <Text style={styles.locationPromptTitle}>Set Your Location</Text>
+      <Text style={styles.locationPromptSubtitle}>
+        To show you the available food nearby and use the distance filter, we need to know your NGO's location.
+      </Text>
+      <Button 
+        title="Set Location on Map" 
+        onPress={() => navigation.navigate('LocationPicker', {
+          title: 'Set NGO Location',
+          onLocationSelected: handleLocationSelected
+        })} 
+        style={{ marginTop: spacing.xl, width: '100%' }}
+      />
+    </View>
+  );
+
+  if (!user?.currentLocation?.latitude) {
+    return (
+      <View style={{ flex: 1, backgroundColor: colors.background, padding: spacing.xl, justifyContent: 'center' }}>
+        <LocationPrompt />
+      </View>
+    );
+  }
 
   if (loading) return <Loader text="Finding available food..." />;
 
@@ -80,6 +148,28 @@ export default function NGOBrowseScreen({ navigation }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
+      {/* Quick Commerce Style Location Header */}
+      <View style={styles.locationHeader}>
+        <View style={styles.locationHeaderLeft}>
+          <Text style={styles.locationHeaderEmoji}>📍</Text>
+          <View style={{ flex: 1, marginRight: 10 }}>
+            <Text style={styles.locationHeaderTitle}>Delivery Location</Text>
+            <Text style={styles.locationHeaderAddress} numberOfLines={1}>
+              {user?.address || `${user?.currentLocation?.latitude.toFixed(4)}, ${user?.currentLocation?.longitude.toFixed(4)}`}
+            </Text>
+          </View>
+        </View>
+        <TouchableOpacity 
+          style={styles.changeLocationBtn}
+          onPress={() => navigation.navigate('LocationPicker', {
+            title: 'Update Location',
+            onLocationSelected: handleLocationSelected
+          })}
+        >
+          <Text style={styles.changeLocationBtnText}>Change</Text>
+        </TouchableOpacity>
+      </View>
+
       {/* Filter tabs */}
       <View style={styles.filterContainer}>
         <FlatList
@@ -99,6 +189,20 @@ export default function NGOBrowseScreen({ navigation }) {
             </TouchableOpacity>
           )}
         />
+        {/* Distance Filter */}
+        <View style={styles.distanceFilterRow}>
+          {DISTANCES.map(d => (
+            <TouchableOpacity
+              key={d.label}
+              onPress={() => setMaxDistance(d.value)}
+              style={[styles.distBtn, maxDistance === d.value && styles.distBtnActive]}
+            >
+              <Text style={[styles.distBtnText, maxDistance === d.value && styles.distBtnTextActive]}>
+                {d.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
 
       {/* Results */}
@@ -120,6 +224,52 @@ export default function NGOBrowseScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  // Location Header Styles
+  locationHeader: {
+    backgroundColor: colors.white,
+    paddingHorizontal: spacing.xl,
+    paddingTop: 50, // accommodate safe area / status bar since there's no native header
+    paddingBottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  locationHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  locationHeaderEmoji: {
+    fontSize: 24,
+    marginRight: 8,
+  },
+  locationHeaderTitle: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: colors.primary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  locationHeaderAddress: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginTop: 2,
+    fontWeight: '500',
+  },
+  changeLocationBtn: {
+    backgroundColor: colors.gray100,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+  },
+  changeLocationBtnText: {
+    color: colors.primary,
+    fontWeight: '700',
+    fontSize: 12,
+  },
+
   filterContainer: { backgroundColor: colors.white, borderBottomWidth: 1, borderBottomColor: colors.border },
   filterChip: {
     paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20,
@@ -128,6 +278,32 @@ const styles = StyleSheet.create({
   filterChipActive: { borderColor: colors.primary, backgroundColor: colors.accent },
   filterChipText: { fontSize: 13, color: colors.textSecondary, fontWeight: '500' },
   filterChipTextActive: { color: colors.primary, fontWeight: '700' },
+  
+  // Distance Filter Styles
+  distanceFilterRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.xl,
+    paddingBottom: 12,
+  },
+  distBtn: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: colors.gray100,
+  },
+  distBtnActive: {
+    backgroundColor: colors.primary,
+  },
+  distBtnText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.textSecondary,
+  },
+  distBtnTextActive: {
+    color: colors.white,
+  },
+  
   list: { padding: spacing.xl, flexGrow: 1 },
   resultCount: { fontSize: 13, color: colors.textSecondary, marginBottom: 12, fontWeight: '500' },
   cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
@@ -140,4 +316,30 @@ const styles = StyleSheet.create({
   address: { fontSize: 12, color: colors.textMuted, marginBottom: 10 },
   cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 },
   timeAgo: { fontSize: 11, color: colors.textMuted },
+  
+  // Location Prompt Styles
+  locationPromptContainer: {
+    backgroundColor: colors.white,
+    padding: spacing.xxl,
+    borderRadius: radius.lg,
+    alignItems: 'center',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1, shadowRadius: 12, elevation: 8,
+  },
+  locationPromptEmoji: {
+    fontSize: 48,
+    marginBottom: spacing.md,
+  },
+  locationPromptTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: colors.text,
+    marginBottom: spacing.sm,
+  },
+  locationPromptSubtitle: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
 });

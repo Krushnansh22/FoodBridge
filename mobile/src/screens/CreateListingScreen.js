@@ -3,6 +3,7 @@ import {
   View, Text, StyleSheet, ScrollView,
   KeyboardAvoidingView, Platform, Alert, TouchableOpacity,
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { listingsAPI } from '../api';
 import { Button, Input } from '../components';
 import { colors, spacing, radius } from '../utils/theme';
@@ -17,6 +18,11 @@ export default function CreateListingScreen({ navigation }) {
   const [pickupLocation, setPickupLocation] = useState(null);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  
+  // Date Picker States
+  const [expiryDate, setExpiryDate] = useState(new Date(Date.now() + 24 * 60 * 60 * 1000)); // Default to tomorrow
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
 
   const update = (key, value) => {
     setForm(f => ({ ...f, [key]: value }));
@@ -28,15 +34,43 @@ export default function CreateListingScreen({ navigation }) {
     if (!form.title.trim()) e.title = 'Title is required';
     if (!form.description.trim()) e.description = 'Description is required';
     if (!form.quantity.trim()) e.quantity = 'Quantity is required';
-    if (!form.expiresAt.trim()) e.expiresAt = 'Expiry date/time is required';
-    else {
-      const d = new Date(form.expiresAt);
-      if (isNaN(d)) e.expiresAt = 'Use format: YYYY-MM-DD HH:MM';
-      else if (d <= new Date()) e.expiresAt = 'Must be a future date';
+    
+    if (!expiryDate || isNaN(expiryDate)) {
+      e.expiresAt = 'Expiry date/time is required';
+    } else if (expiryDate <= new Date()) {
+      e.expiresAt = 'Must be a future date';
     }
+
     if (!form.pickupAddress.trim()) e.pickupAddress = 'Pickup address is required';
     setErrors(e);
     return Object.keys(e).length === 0;
+  };
+
+  const onDateChange = (event, selectedDate) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      setExpiryDate(selectedDate);
+      setShowTimePicker(true);
+    }
+  };
+
+  const onTimeChange = (event, selectedTime) => {
+    setShowTimePicker(false);
+    if (selectedTime) {
+      const newDate = new Date(expiryDate);
+      newDate.setHours(selectedTime.getHours());
+      newDate.setMinutes(selectedTime.getMinutes());
+      setExpiryDate(newDate);
+      setErrors(e => ({ ...e, expiresAt: '' }));
+    }
+  };
+
+  const formatDateTime = (dateObj) => {
+    if (!dateObj) return '';
+    return dateObj.toLocaleString([], {
+      year: 'numeric', month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
   };
 
   const handleSubmit = async () => {
@@ -45,7 +79,7 @@ export default function CreateListingScreen({ navigation }) {
     try {
       const payload = {
         ...form,
-        expiresAt: new Date(form.expiresAt).toISOString(),
+        expiresAt: expiryDate.toISOString(),
         servings: form.servings ? parseInt(form.servings) : 0,
         ...(pickupLocation && { pickupLocation }),
       };
@@ -101,9 +135,39 @@ export default function CreateListingScreen({ navigation }) {
           </View>
         </View>
 
-        <Input label="Expires At *" value={form.expiresAt} onChangeText={v => update('expiresAt', v)}
-          placeholder="YYYY-MM-DD HH:MM" error={errors.expiresAt} />
-        <Text style={styles.hint}>Format: 2024-03-25 18:00</Text>
+        <View style={styles.fieldGroup}>
+          <Text style={styles.fieldLabel}>Expires At *</Text>
+          <TouchableOpacity 
+            style={[styles.datePickerBtn, errors.expiresAt && { borderColor: colors.danger }]} 
+            onPress={() => setShowDatePicker(true)}
+          >
+            <Text style={styles.datePickerText}>📅 {formatDateTime(expiryDate)}</Text>
+          </TouchableOpacity>
+          {errors.expiresAt ? <Text style={styles.errorText}>{errors.expiresAt}</Text> : null}
+        </View>
+
+        {showDatePicker && (
+          <DateTimePicker
+            testID="dateTimePicker"
+            value={expiryDate}
+            mode="date"
+            is24Hour={true}
+            display="default"
+            onChange={onDateChange}
+            minimumDate={new Date()}
+          />
+        )}
+
+        {showTimePicker && (
+          <DateTimePicker
+            testID="timePicker"
+            value={expiryDate}
+            mode="time"
+            is24Hour={true}
+            display="default"
+            onChange={onTimeChange}
+          />
+        )}
 
         {/* Pickup Address + Map Picker */}
         <View style={styles.fieldGroup}>
@@ -190,5 +254,24 @@ const styles = StyleSheet.create({
   orText: {
     textAlign: 'center', color: colors.textMuted,
     fontSize: 12, marginVertical: 8,
+  },
+  datePickerBtn: {
+    backgroundColor: colors.gray100,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    marginBottom: 4,
+  },
+  datePickerText: {
+    fontSize: 14,
+    color: colors.text,
+    fontWeight: '500',
+  },
+  errorText: {
+    color: colors.danger,
+    fontSize: 11,
+    marginTop: 4,
   },
 });
