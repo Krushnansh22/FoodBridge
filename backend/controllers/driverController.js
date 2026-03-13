@@ -134,7 +134,8 @@ exports.requestPickupOTP = async (req, res) => {
     const html = `
       <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
         <div style="background: linear-gradient(135deg, #22c55e, #16a34a); padding: 30px; text-align: center;">
-          <h1 style="color: #ffffff; margin: 0; font-size: 28px;">🌉 FoodBridge</h1>
+          <img src="cid:foodbridge-logo" alt="FoodBridge Logo" style="width: 80px; height: auto; margin-bottom: 10px;" />
+          <h1 style="color: #ffffff; margin: 0; font-size: 28px;">FoodBridge</h1>
           <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0;">Food Rescue Platform</p>
         </div>
         <div style="padding: 30px;">
@@ -315,7 +316,8 @@ exports.requestDeliveryOTP = async (req, res) => {
     const html = `
       <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
         <div style="background: linear-gradient(135deg, #22c55e, #16a34a); padding: 30px; text-align: center;">
-          <h1 style="color: #ffffff; margin: 0; font-size: 28px;">🌉 FoodBridge</h1>
+          <img src="cid:foodbridge-logo" alt="FoodBridge Logo" style="width: 80px; height: auto; margin-bottom: 10px;" />
+          <h1 style="color: #ffffff; margin: 0; font-size: 28px;">FoodBridge</h1>
           <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0;">Food Rescue Platform</p>
         </div>
         <div style="padding: 30px;">
