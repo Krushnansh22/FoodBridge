@@ -1,12 +1,7 @@
 import React, { useState } from 'react';
 import {
-<<<<<<< HEAD
   View, Text, StyleSheet, ScrollView, SafeAreaView, StatusBar,
   KeyboardAvoidingView, Platform, TouchableOpacity, Alert,
-=======
-  View, Text, StyleSheet, ScrollView,
-  KeyboardAvoidingView, Platform, TouchableOpacity, Alert, Image,
->>>>>>> bc3be0edd5213d32a28a3b3fcd9007f611b12432
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { Button, Input } from '../components';
@@ -89,7 +84,6 @@ export default function RegisterScreen({ navigation }) {
   };
 
   return (
-<<<<<<< HEAD
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.white} />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -97,36 +91,6 @@ export default function RegisterScreen({ navigation }) {
           <View style={styles.header}>
             <Text style={styles.title}>Create Account</Text>
             <Text style={styles.subtitle}>Join FoodBridge community</Text>
-=======
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-        <View style={styles.header}>
-          <Image 
-            source={require('../../logo/image.png')} 
-            style={{ width: 64, height: 64, borderRadius: 32, marginBottom: 12, alignSelf: 'center' }} 
-            resizeMode="cover" 
-          />
-          <Text style={styles.title}>Create Account</Text>
-          <Text style={styles.subtitle}>Join FoodBridge today</Text>
-        </View>
-
-        <View style={styles.formCard}>
-          {/* Role selector */}
-          <Text style={styles.sectionLabel}>I am a...</Text>
-          <View style={styles.roleGrid}>
-            {ROLES.map(role => (
-              <TouchableOpacity
-                key={role.key}
-                onPress={() => update('role', role.key)}
-                style={[styles.roleCard, form.role === role.key && styles.roleCardActive]}
-              >
-                <Text style={styles.roleLabel}>{role.label}</Text>
-                <Text style={[styles.roleDesc, form.role === role.key && { color: colors.primary }]}>
-                  {role.desc}
-                </Text>
-              </TouchableOpacity>
-            ))}
->>>>>>> bc3be0edd5213d32a28a3b3fcd9007f611b12432
           </View>
 
           <View style={styles.section}>
@@ -166,7 +130,7 @@ export default function RegisterScreen({ navigation }) {
               <Input label="Organization Name (optional)" value={form.organizationName}
                 onChangeText={v => update('organizationName', v)} placeholder="e.g. City Rescue Mission" icon={<PersonIcon />} />
             )}
-nnnnn 
+
             <Input label="Email Address" value={form.email} onChangeText={v => update('email', v)}
               placeholder="you@example.com" keyboardType="email-address" autoCapitalize="none" error={errors.email} icon={<MailIcon />} />
             <Input label="Password" value={form.password} onChangeText={v => update('password', v)}
@@ -219,7 +183,6 @@ nnnnn
 }
 
 const styles = StyleSheet.create({
-<<<<<<< HEAD
   safe: { flex: 1, backgroundColor: colors.white },
   container: { flexGrow: 1, backgroundColor: colors.white, paddingHorizontal: 24, paddingBottom: 40 },
   header: { paddingTop: 48, paddingBottom: 24 },
@@ -232,18 +195,6 @@ const styles = StyleSheet.create({
   requiredBadge: { backgroundColor: colors.accent, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
   requiredText: { fontSize: 9, fontWeight: '700', color: colors.primary, letterSpacing: 0.5 },
   roleGrid: { flexDirection: 'row', gap: 12 },
-=======
-  container: { flexGrow: 1, backgroundColor: colors.background, paddingHorizontal: spacing.xl, paddingBottom: 40 },
-  header: { paddingTop: 48, paddingBottom: 24, alignItems: 'center' },
-  title: { fontSize: 28, fontWeight: '900', color: colors.text, letterSpacing: -0.5 },
-  subtitle: { fontSize: 14, color: colors.textSecondary, marginTop: 4 },
-  formCard: {
-    backgroundColor: colors.white, borderRadius: 20, padding: spacing.xxl,
-    borderWidth: 1, borderColor: colors.border,
-  },
-  sectionLabel: { fontSize: 13, fontWeight: '700', color: colors.text, marginBottom: 10, textTransform: 'uppercase', letterSpacing: 0.5 },
-  roleGrid: { flexDirection: 'row', gap: 8, marginBottom: spacing.xl, flexWrap: 'wrap' },
->>>>>>> bc3be0edd5213d32a28a3b3fcd9007f611b12432
   roleCard: {
     flex: 1, alignItems: 'center', borderWidth: 1.5, borderColor: colors.border,
     borderRadius: 14, paddingVertical: 16, paddingHorizontal: 8, backgroundColor: colors.white,
