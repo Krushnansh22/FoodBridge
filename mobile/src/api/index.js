@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Change this to your machine's local IP when testing on a physical device
-export const BASE_URL = 'http://10.98.151.16:5000/api';
+export const BASE_URL = 'http://10.98.151.248:5000/api';
 // For Android emulator use: http://10.0.2.2:5000/api
 // For iOS simulator use: http://localhost:5000/api
 
@@ -56,6 +56,7 @@ export const requestsAPI = {
   create: (listingId, body) => api(`/requests/listing/${listingId}`, { method: 'POST', body }),
   getDonorRequests: () => api('/requests/donor'),
   getNgoRequests: () => api('/requests/ngo'),
+  getAllDonors: () => api('/requests/ngo/donors'),
   approve: (id) => api(`/requests/${id}/approve`, { method: 'PUT' }),
   reject: (id, body) => api(`/requests/${id}/reject`, { method: 'PUT', body }),
   collect: (id) => api(`/requests/${id}/collect`, { method: 'PUT' }),

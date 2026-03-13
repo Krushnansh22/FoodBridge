@@ -11,6 +11,14 @@ const userSchema = new mongoose.Schema({
   address: { type: String, trim: true },
   organizationName: { type: String, trim: true },
   isActive: { type: Boolean, default: true },
+  // Donor specific
+  bio: { type: String, trim: true },
+  city: { type: String, trim: true },
+  contactPerson: { type: String, trim: true },
+  donorType: { type: String, trim: true },
+  businessName: { type: String, trim: true },
+  typicalDonationTime: { type: String, trim: true },
+  profilePhoto: { type: String },
   // Driver specific
   vehicleType: { type: String, enum: ['bike', 'car', 'van', 'truck'], default: 'bike' },
   vehicleNumber: { type: String },
@@ -19,6 +27,17 @@ const userSchema = new mongoose.Schema({
     latitude: { type: Number },
     longitude: { type: Number },
   },
+  // Preferences
+  preferences: {
+    pushNotifications: { type: Boolean, default: true },
+    urgentRescueAlerts: { type: Boolean, default: false },
+  },
+  // Stats
+  stats: {
+    mealsSaved: { type: Number, default: 0 },
+    pickupsDone: { type: Number, default: 0 },
+  },
+  verificationStatus: { type: String, default: 'Pending Verification' },
   // Forgot password
   resetPasswordOTP: { type: String },
   resetPasswordOTPExpire: { type: Date },

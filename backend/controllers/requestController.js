@@ -130,3 +130,33 @@ exports.markCollected = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+// Get all donors with their donation info (for NGO dashboard)
+exports.getAllDonors = async (req, res) => {
+  try {
+    const User = require('../models/User');
+    const donors = await User.find({ role: 'donor', isActive: true })
+      .select('name email phone address organizationName createdAt')
+      .sort('-createdAt');
+
+    // Get donation counts per donor
+    const donorIds = donors.map(d => d._id);
+    const listingCounts = await Listing.aggregate([
+      { $match: { donor: { $in: donorIds } } },
+      { $group: { _id: '$donor', totalListings: { $sum: 1 }, collectedListings: { $sum: { $cond: [{ $eq: ['$status', 'collected'] }, 1, 0] } } } }
+    ]);
+
+    const countMap = {};
+    listingCounts.forEach(lc => { countMap[lc._id.toString()] = { totalListings: lc.totalListings, collectedListings: lc.collectedListings }; });
+
+    const donorsWithStats = donors.map(d => ({
+      ...d.toJSON(),
+      totalListings: countMap[d._id.toString()]?.totalListings || 0,
+      collectedListings: countMap[d._id.toString()]?.collectedListings || 0,
+    }));
+
+    res.json({ success: true, count: donorsWithStats.length, donors: donorsWithStats });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};

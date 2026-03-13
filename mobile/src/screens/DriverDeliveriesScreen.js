@@ -13,7 +13,7 @@ import api, { driverAPI } from '../api';
 const DRIVER_STATUS_LABELS = {
   accepted: { label: 'Accepted', color: colors.warning, next: 'heading_to_pickup', nextLabel: '🚗 Heading to Pickup' },
   heading_to_pickup: { label: 'Heading to Pickup', color: colors.info, next: 'picked_up', nextLabel: '📦 Mark as Picked Up' },
-  picked_up: { label: 'Picked Up', color: colors.secondary, next: 'delivered', nextLabel: '✅ Mark as Delivered' },
+  picked_up: { label: 'Picked Up', color: colors.primary, next: 'delivered', nextLabel: '✅ Request Delivery OTP' },
   delivered: { label: 'Delivered', color: colors.success, next: null, nextLabel: null },
 };
 
@@ -103,8 +103,8 @@ export default function DriverDeliveriesScreen() {
         Alert.alert('🎉 Delivered!', 'Great job! Food has been delivered successfully.');
       }
       setOtpInput('');
+      await load();
       setActiveOTPRequest(null);
-      load();
     } catch (err) {
       Alert.alert('Error', err.message);
     } finally {
@@ -119,6 +119,7 @@ export default function DriverDeliveriesScreen() {
     const isUpdating = updating === item._id;
     const hasPickupLocation = item.listing?.pickupLocation?.latitude;
     const hasDropLocation = item.ngoLocation?.latitude;
+    const isOTPActiveForThis = activeOTPRequest?.id === item._id;
 
     return (
       <Card style={styles.deliveryCard}>
@@ -192,24 +193,11 @@ export default function DriverDeliveriesScreen() {
 
         <Text style={styles.timeAgo}>{timeAgo(item.createdAt)}</Text>
 
-        {/* Action button */}
-        {ds.next && activeOTPRequest?.id !== item._id && (
-          <TouchableOpacity
-            style={[styles.actionBtn, { backgroundColor: ds.color }, isUpdating && styles.actionBtnDisabled]}
-            onPress={() => handleUpdateStatus(item._id, ds.next, ds.nextLabel)}
-            disabled={isUpdating}
-          >
-            <Text style={styles.actionBtnText} numberOfLines={1} adjustsFontSizeToFit>
-              {isUpdating ? 'Updating...' : (ds.next === 'picked_up' ? '📦 Request Pickup OTP' : ds.next === 'delivered' ? '✅ Request Delivery OTP' : ds.nextLabel)}
-            </Text>
-          </TouchableOpacity>
-        )}
-
-        {/* OTP Input Section */}
-        {activeOTPRequest?.id === item._id && (
+        {/* OTP Input Section — shown when OTP was requested for this item */}
+        {isOTPActiveForThis && (
           <View style={styles.otpSection}>
             <Text style={styles.otpDesc}>
-              {activeOTPRequest.type === 'pickup' ? 'Enter OTP from Donor:' : 'Enter OTP from NGO:'}
+              {activeOTPRequest.type === 'pickup' ? '📦 Enter OTP from Donor to confirm pickup:' : '✅ Enter OTP from NGO to confirm delivery:'}
             </Text>
             <Input
               value={otpInput}
@@ -219,10 +207,23 @@ export default function DriverDeliveriesScreen() {
               maxLength={6}
             />
             <View style={styles.otpRow}>
-              <Button title="Cancel" variant="ghost" onPress={() => setActiveOTPRequest(null)} style={{ flex: 1, marginRight: 8 }} />
-              <Button title="Verify" onPress={handleVerifyOTP} loading={isUpdating} style={{ flex: 1, marginLeft: 8 }} />
+              <Button title="Cancel" variant="ghost" onPress={() => { setActiveOTPRequest(null); setOtpInput(''); }} style={{ flex: 1, marginRight: 8 }} />
+              <Button title="Verify OTP" onPress={handleVerifyOTP} loading={isUpdating} style={{ flex: 1, marginLeft: 8 }} />
             </View>
           </View>
+        )}
+
+        {/* Action button — shown when there is a next step AND no active OTP input for this item */}
+        {ds.next && !isOTPActiveForThis && (
+          <TouchableOpacity
+            style={[styles.actionBtn, { backgroundColor: ds.color }, isUpdating && styles.actionBtnDisabled]}
+            onPress={() => handleUpdateStatus(item._id, ds.next, ds.nextLabel)}
+            disabled={isUpdating}
+          >
+            <Text style={styles.actionBtnText} numberOfLines={1} adjustsFontSizeToFit>
+              {isUpdating ? 'Updating...' : ds.nextLabel}
+            </Text>
+          </TouchableOpacity>
         )}
 
         {item.driverStatus === 'delivered' && (

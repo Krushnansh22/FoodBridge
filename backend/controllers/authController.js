@@ -52,10 +52,21 @@ exports.getMe = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
   try {
-    const { name, phone, address, organizationName, vehicleType, vehicleNumber, isAvailable, currentLocation } = req.body;
+    const allowedFields = [
+      'name', 'phone', 'address', 'organizationName',
+      'vehicleType', 'vehicleNumber', 'isAvailable', 'currentLocation',
+      'bio', 'city', 'contactPerson', 'donorType', 'businessName',
+      'typicalDonationTime', 'preferences'
+    ];
+    const updateData = {};
+    allowedFields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        updateData[field] = req.body[field];
+      }
+    });
     const user = await User.findByIdAndUpdate(
       req.user._id,
-      { name, phone, address, organizationName, vehicleType, vehicleNumber, isAvailable, currentLocation },
+      updateData,
       { new: true, runValidators: true }
     );
     res.json({ success: true, user });
@@ -76,13 +87,44 @@ exports.forgotPassword = async (req, res) => {
     await user.save({ validateBeforeSave: false });
 
     // Send via email
-    const message = `Your password reset OTP is: ${otp}\n\nIt is valid for 10 minutes.\nIf you did not request this, please ignore this email.`;
+    const html = `
+      <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+        <div style="background: linear-gradient(135deg, #22c55e, #16a34a); padding: 30px; text-align: center;">
+          <h1 style="color: #ffffff; margin: 0; font-size: 28px;">🌉 FoodBridge</h1>
+          <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0;">Password Reset Request</p>
+        </div>
+        <div style="padding: 30px;">
+          <h2 style="color: #1a1a1a; margin-top: 0;">🔐 Password Reset OTP</h2>
+          <p style="color: #4b5563; line-height: 1.6;">
+            Dear <strong>${user.name}</strong>,
+          </p>
+          <p style="color: #4b5563; line-height: 1.6;">
+            We received a request to reset your FoodBridge account password. 
+            Please use the OTP below to proceed with the password reset.
+          </p>
+          <div style="background: #fff3e0; border: 2px solid #fb8c00; border-radius: 12px; padding: 20px; text-align: center; margin: 20px 0;">
+            <p style="color: #6b7280; font-size: 14px; margin: 0 0 8px;">Your Password Reset OTP</p>
+            <h1 style="color: #e65100; font-size: 42px; letter-spacing: 8px; margin: 0;">${otp}</h1>
+            <p style="color: #9ca3af; font-size: 12px; margin: 8px 0 0;">Valid for 10 minutes</p>
+          </div>
+          <p style="color: #4b5563; line-height: 1.6;">
+            If you did not request this password reset, please ignore this email. 
+            Your account remains secure.
+          </p>
+          <p style="color: #4b5563;">Best regards,<br/><strong>The FoodBridge Team</strong></p>
+        </div>
+        <div style="background: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
+          <p style="color: #9ca3af; font-size: 12px; margin: 0;">© ${new Date().getFullYear()} FoodBridge — Connecting surplus food with communities in need.</p>
+        </div>
+      </div>
+    `;
     
     try {
       await sendEmail({
         email: user.email,
-        subject: 'FoodBridge Password Reset OTP',
-        message
+        subject: '🔐 FoodBridge — Password Reset OTP',
+        message: `Your password reset OTP is: ${otp}. It is valid for 10 minutes. If you did not request this, please ignore this email.`,
+        html
       });
 
       res.status(200).json({

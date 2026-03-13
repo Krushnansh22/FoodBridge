@@ -78,7 +78,7 @@ export default function AdminScreen() {
             <View style={styles.statsGrid}>
               {[
                 { label: 'Total Users', count: stats.totalUsers, emoji: '👥', color: colors.primary },
-                { label: 'Listings', count: stats.totalListings, emoji: '🍱', color: colors.secondary },
+                { label: 'Listings', count: stats.totalListings, emoji: '🍱', color: colors.primaryDark },
                 { label: 'Requests', count: stats.totalRequests, emoji: '📋', color: colors.info },
                 { label: 'Collected', count: stats.collected, emoji: '✅', color: colors.success },
               ].map(s => (

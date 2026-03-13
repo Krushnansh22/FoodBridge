@@ -14,12 +14,16 @@ const sendEmail = async (options) => {
 
   // Define the email options
   const message = {
-    from: `FoodBridge <${process.env.EMAIL_USER}>`,
+    from: `"FoodBridge" <${process.env.EMAIL_USER}>`,
     to: options.email,
     subject: options.subject,
     text: options.message,
     html: options.html,
   };
+  
+  if (options.attachments) {
+    message.attachments = options.attachments;
+  }
 
   // Send the email
   const info = await transporter.sendMail(message);

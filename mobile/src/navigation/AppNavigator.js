@@ -15,12 +15,17 @@ import ProfileScreen from '../screens/ProfileScreen';
 import DonorHomeScreen from '../screens/DonorHomeScreen';
 import CreateListingScreen from '../screens/CreateListingScreen';
 import DonorRequestsScreen from '../screens/DonorRequestsScreen';
+import DonorProfileScreen from '../screens/DonorProfileScreen';
+import EditProfileScreen from '../screens/EditProfileScreen';
 import NGOBrowseScreen from '../screens/NGOBrowseScreen';
 import NGORequestsScreen from '../screens/NGORequestsScreen';
+import NGODonorsScreen from '../screens/NGODonorsScreen';
 import AdminScreen from '../screens/AdminScreen';
 import LocationPickerScreen from '../screens/LocationPickerScreen';
 import DriverHomeScreen from '../screens/DriverHomeScreen';
 import DriverDeliveriesScreen from '../screens/DriverDeliveriesScreen';
+import DriverProfileScreen from '../screens/DriverProfileScreen';
+import DriverEditProfileScreen from '../screens/DriverEditProfileScreen';
 import AdminExpiredFoodScreen from '../screens/AdminExpiredFoodScreen';
 
 const Stack = createNativeStackNavigator();
@@ -55,6 +60,15 @@ function DonorRequestsStack() {
   );
 }
 
+function DonorProfileStack() {
+  return (
+    <Stack.Navigator screenOptions={stackOptions}>
+      <Stack.Screen name="DonorProfile" component={DonorProfileScreen} options={{ title: 'Profile', headerShown: false }} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ title: 'Edit Profile', headerShown: false }} />
+    </Stack.Navigator>
+  );
+}
+
 function DonorTabs() {
   return (
     <Tab.Navigator screenOptions={tabOptions}>
@@ -62,8 +76,8 @@ function DonorTabs() {
         options={{ title: 'Dashboard', tabBarIcon: ({ focused }) => <TabIcon emoji="🏠" focused={focused} />, headerShown: false }} />
       <Tab.Screen name="Requests" component={DonorRequestsStack}
         options={{ title: 'Requests', tabBarIcon: ({ focused }) => <TabIcon emoji="📋" focused={focused} />, headerShown: false }} />
-      <Tab.Screen name="Profile" component={ProfileScreen}
-        options={{ title: 'Profile', tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} /> }} />
+      <Tab.Screen name="Profile" component={DonorProfileStack}
+        options={{ title: 'Profile', tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} />, headerShown: false }} />
     </Tab.Navigator>
   );
 }
@@ -86,6 +100,14 @@ function NGORequestsStack() {
   );
 }
 
+function NGODonorsStack() {
+  return (
+    <Stack.Navigator screenOptions={stackOptions}>
+      <Stack.Screen name="DonorsList" component={NGODonorsScreen} options={{ title: 'All Donors' }} />
+    </Stack.Navigator>
+  );
+}
+
 function NGOTabs() {
   return (
     <Tab.Navigator screenOptions={tabOptions}>
@@ -93,6 +115,8 @@ function NGOTabs() {
         options={{ title: 'Browse', tabBarIcon: ({ focused }) => <TabIcon emoji="🔍" focused={focused} />, headerShown: false }} />
       <Tab.Screen name="Requests" component={NGORequestsStack}
         options={{ title: 'Requests', tabBarIcon: ({ focused }) => <TabIcon emoji="🤝" focused={focused} />, headerShown: false }} />
+      <Tab.Screen name="Donors" component={NGODonorsStack}
+        options={{ title: 'Donors', tabBarIcon: ({ focused }) => <TabIcon emoji="👥" focused={focused} />, headerShown: false }} />
       <Tab.Screen name="Profile" component={ProfileScreen}
         options={{ title: 'Profile', tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} /> }} />
     </Tab.Navigator>
@@ -100,6 +124,15 @@ function NGOTabs() {
 }
 
 // ─── Driver Tabs ──────────────────────────────────────────────────────────────
+function DriverProfileStack() {
+  return (
+    <Stack.Navigator screenOptions={stackOptions}>
+      <Stack.Screen name="DriverProfileHome" component={DriverProfileScreen} options={{ title: 'Profile', headerShown: false }} />
+      <Stack.Screen name="DriverEditProfile" component={DriverEditProfileScreen} options={{ title: 'Edit Profile', headerShown: false }} />
+    </Stack.Navigator>
+  );
+}
+
 function DriverTabs() {
   return (
     <Tab.Navigator screenOptions={tabOptions}>
@@ -107,8 +140,8 @@ function DriverTabs() {
         options={{ title: 'Available', tabBarIcon: ({ focused }) => <TabIcon emoji="🚚" focused={focused} /> }} />
       <Tab.Screen name="MyDeliveries" component={DriverDeliveriesScreen}
         options={{ title: 'My Deliveries', tabBarIcon: ({ focused }) => <TabIcon emoji="📦" focused={focused} /> }} />
-      <Tab.Screen name="Profile" component={ProfileScreen}
-        options={{ title: 'Profile', tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} /> }} />
+      <Tab.Screen name="Profile" component={DriverProfileStack}
+        options={{ title: 'Profile', tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} />, headerShown: false }} />
     </Tab.Navigator>
   );
 }

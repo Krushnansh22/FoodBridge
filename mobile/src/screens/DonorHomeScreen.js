@@ -77,12 +77,12 @@ export default function DonorHomeScreen({ navigation }) {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>⚡ Pending Pickups</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('DonorRequests')}>
+            <TouchableOpacity onPress={() => navigation.getParent()?.navigate('Requests')}>
               <Text style={styles.seeAll}>See all</Text>
             </TouchableOpacity>
           </View>
           {pendingRequests.slice(0, 2).map(req => (
-            <Card key={req._id} onPress={() => navigation.navigate('DonorRequests')} style={styles.alertCard}>
+            <Card key={req._id} onPress={() => navigation.getParent()?.navigate('Requests')} style={styles.alertCard}>
               <View style={styles.alertRow}>
                 <View style={styles.alertDot} />
                 <View style={{ flex: 1 }}>
