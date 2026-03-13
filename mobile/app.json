@@ -1,0 +1,19 @@
+{
+  "expo": {
+    "name": "FoodBridge",
+    "slug": "foodbridge",
+    "version": "1.0.0",
+    "sdkVersion": "53.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": false
+    },
+    "android": {
+      "package": "com.foodbridge.app"
+    },
+    "plugins": [
+      "expo-maps"
+    ]
+  }
+}
