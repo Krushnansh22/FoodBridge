@@ -8,7 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { listingsAPI, requestsAPI } from '../api';
 import { Card, Badge, EmptyState, Loader } from '../components';
 import { colors, spacing, statusColors, foodTypeColors } from '../utils/theme';
-import { formatDate, timeAgo } from '../utils/helpers';
+import { formatDate, timeAgo, isExpired } from '../utils/helpers';
 
 export default function DonorHomeScreen({ navigation }) {
   const { user } = useAuth();
@@ -35,10 +35,13 @@ export default function DonorHomeScreen({ navigation }) {
 
   useFocusEffect(useCallback(() => { load(); }, []));
 
+  const activeListings = listings.filter(l => !isExpired(l.expiresAt));
+  const expiredListings = listings.filter(l => isExpired(l.expiresAt));
+
   const stats = {
-    active: listings.filter(l => l.status === 'available').length,
-    requested: listings.filter(l => l.status === 'requested').length,
-    collected: listings.filter(l => l.status === 'collected').length,
+    active: activeListings.filter(l => l.status === 'available').length,
+    requested: activeListings.filter(l => l.status === 'requested').length,
+    collected: activeListings.filter(l => l.status === 'collected').length,
   };
 
   if (loading) return <Loader text="Loading dashboard..." />;
@@ -101,17 +104,36 @@ export default function DonorHomeScreen({ navigation }) {
             <Text style={styles.addBtn}>+ New</Text>
           </TouchableOpacity>
         </View>
-        {listings.length === 0 ? (
-          <EmptyState icon="🍱" title="No listings yet" subtitle="Post your first food listing to get started" />
+        {activeListings.length === 0 ? (
+          <EmptyState icon="🍱" title="No active listings" subtitle="Post your first food listing to get started" />
         ) : (
-          listings.slice(0, 5).map(item => <ListingCard key={item._id} item={item} onPress={() => navigation.navigate('ListingDetail', { id: item._id })} />)
+          activeListings.slice(0, 5).map(item => <ListingCard key={item._id} item={item} onPress={() => navigation.navigate('ListingDetail', { id: item._id })} />)
         )}
-        {listings.length > 5 && (
+        {activeListings.length > 5 && (
           <TouchableOpacity style={styles.viewAllBtn} onPress={() => navigation.navigate('MyListings')}>
-            <Text style={styles.viewAllText}>View all {listings.length} listings</Text>
+            <Text style={styles.viewAllText}>View all {activeListings.length} listings</Text>
           </TouchableOpacity>
         )}
       </View>
+
+      {/* Expired Listings Section */}
+      {expiredListings.length > 0 && (
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Expired Food ⚠️</Text>
+          </View>
+          {expiredListings.slice(0, 3).map(item => (
+            <View style={{ opacity: 0.6 }} key={item._id}>
+              <ListingCard item={item} onPress={() => navigation.navigate('ListingDetail', { id: item._id })} />
+            </View>
+          ))}
+          {expiredListings.length > 3 && (
+            <TouchableOpacity style={styles.viewAllBtn} onPress={() => navigation.navigate('MyListings')}>
+              <Text style={styles.viewAllText}>View all {expiredListings.length} expired items</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
     </ScrollView>
   );
 }

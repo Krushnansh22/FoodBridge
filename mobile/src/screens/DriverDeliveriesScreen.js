@@ -199,7 +199,7 @@ export default function DriverDeliveriesScreen() {
             onPress={() => handleUpdateStatus(item._id, ds.next, ds.nextLabel)}
             disabled={isUpdating}
           >
-            <Text style={styles.actionBtnText}>
+            <Text style={styles.actionBtnText} numberOfLines={1} adjustsFontSizeToFit>
               {isUpdating ? 'Updating...' : (ds.next === 'picked_up' ? '📦 Request Pickup OTP' : ds.next === 'delivered' ? '✅ Request Delivery OTP' : ds.nextLabel)}
             </Text>
           </TouchableOpacity>
@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
     borderRadius: 10, paddingVertical: 13, alignItems: 'center',
   },
   actionBtnDisabled: { opacity: 0.6 },
-  actionBtnText: { color: colors.white, fontWeight: '800', fontSize: 15 },
+  actionBtnText: { color: colors.white, fontWeight: '800', fontSize: 15, flexShrink: 1 },
   completedBox: {
     marginHorizontal: spacing.lg, marginBottom: spacing.lg,
     backgroundColor: colors.successLight, borderRadius: 10,
