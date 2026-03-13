@@ -179,7 +179,12 @@ exports.requestPickupOTP = async (req, res) => {
         email: request.donor.email,
         subject: '📦 FoodBridge — Pickup Verification OTP',
         message: `Your FoodBridge Pickup OTP is: ${otp}. Share this with the driver to confirm pickup. Valid for 10 minutes.`,
-        html
+        html,
+        attachments: [{
+          filename: 'logo.png',
+          path: require('path').join(__dirname, '../../mobile/public/logo.png'),
+          cid: 'foodbridge-logo'
+        }]
       });
       res.json({ success: true, message: 'OTP sent to Donor' });
     } catch (err) {
@@ -224,7 +229,8 @@ exports.verifyPickupOTP = async (req, res) => {
       const donorHtml = `
         <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
           <div style="background: linear-gradient(135deg, #22c55e, #16a34a); padding: 30px; text-align: center;">
-            <h1 style="color: #ffffff; margin: 0; font-size: 28px;">🌉 FoodBridge</h1>
+            <img src="cid:foodbridge-logo" alt="FoodBridge Logo" style="width: 80px; height: auto; margin-bottom: 10px;" />
+            <h1 style="color: #ffffff; margin: 0; font-size: 28px;">FoodBridge</h1>
             <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0;">Thank You For Your Generosity!</p>
           </div>
           <div style="padding: 30px;">
@@ -269,7 +275,12 @@ exports.verifyPickupOTP = async (req, res) => {
         email: request.donor.email,
         subject: '🙏 FoodBridge — Thank You for Your Food Donation!',
         message: `Thank you for your generous food donation of "${request.listing?.title}". It has been picked up and is on its way to ${request.ngo?.organizationName || request.ngo?.name}.`,
-        html: donorHtml
+        html: donorHtml,
+        attachments: [{
+          filename: 'logo.png',
+          path: require('path').join(__dirname, '../../mobile/public/logo.png'),
+          cid: 'foodbridge-logo'
+        }]
       });
     } catch (emailErr) {
       console.error('Donor thank-you email error:', emailErr.message);
@@ -348,7 +359,12 @@ exports.requestDeliveryOTP = async (req, res) => {
         email: request.ngo.email,
         subject: '✅ FoodBridge — Delivery Verification OTP',
         message: `Your FoodBridge Delivery OTP is: ${otp}. Share this with the driver to confirm delivery. Valid for 10 minutes.`,
-        html
+        html,
+        attachments: [{
+          filename: 'logo.png',
+          path: require('path').join(__dirname, '../../mobile/public/logo.png'),
+          cid: 'foodbridge-logo'
+        }]
       });
       res.json({ success: true, message: 'OTP sent to NGO' });
     } catch (err) {
@@ -400,7 +416,8 @@ exports.verifyDeliveryOTP = async (req, res) => {
       const driverHtml = `
         <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
           <div style="background: linear-gradient(135deg, #1565C0, #0d47a1); padding: 30px; text-align: center;">
-            <h1 style="color: #ffffff; margin: 0; font-size: 28px;">🌉 FoodBridge</h1>
+            <img src="cid:foodbridge-logo" alt="FoodBridge Logo" style="width: 80px; height: auto; margin-bottom: 10px;" />
+            <h1 style="color: #ffffff; margin: 0; font-size: 28px;">FoodBridge</h1>
             <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0;">Delivery Completed Successfully!</p>
           </div>
           <div style="padding: 30px;">
@@ -445,7 +462,12 @@ exports.verifyDeliveryOTP = async (req, res) => {
           email: driverUser.email,
           subject: `🎉 FoodBridge — Delivery Complete! You earned +${points} points!`,
           message: `Great job ${driverUser.name}! You successfully delivered "${request.listing?.title}" to ${request.ngo?.organizationName || request.ngo?.name}. You earned ${points} points for this delivery!`,
-          html: driverHtml
+          html: driverHtml,
+          attachments: [{
+            filename: 'logo.png',
+            path: require('path').join(__dirname, '../../mobile/public/logo.png'),
+            cid: 'foodbridge-logo'
+          }]
         });
       }
     } catch (emailErr) {
